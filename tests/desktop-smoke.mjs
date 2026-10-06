@@ -45,6 +45,7 @@ const handle = ipcMain.handle.bind(ipcMain);
 ipcMain.handle = (name, callback) => { handlers.set(name, callback); handle(name, callback); };
 const invoke = (name, ...args) => handlers.get(name)({}, ...args);
 let scenario = 'write', target = 'approved.txt', onApproval, failSession;
+let finishSlowReview;
 const requestedTools = [];
 const requests = [];
 const httpMcp = await startHttpMcpServer();
@@ -68,7 +69,7 @@ powerSaveBlocker.stop = (...args) => { blockersStopped++; return originalStop.ap
 const server = createServer(async (request, response) => {
   let raw = ''; for await (const chunk of request) raw += chunk;
   const body = JSON.parse(raw); requests.push(body);
-  if (scenario === 'slow-review') await new Promise((resolve) => setTimeout(resolve, 5500));
+  if (scenario === 'slow-review') await new Promise((resolve) => { finishSlowReview = resolve; });
   if (scenario === 'steer') await new Promise((resolve) => setTimeout(resolve, 120));
   const tools = body.tools?.map((tool) => tool.function.name) || [];
   const currentTurn = body.messages.slice(body.messages.findLastIndex((message) => message.role === 'user') + 1);
@@ -621,22 +622,37 @@ try {
   assert.equal(selectedProvider, 'openai');
   assert.equal((await invoke('initialize')).settings.model, 'custom-openai');
   console.log('PASS composer lists connected providers and switches the execution provider and custom model');
+  // This case uses only the local model and controls motion independently of the host.
+  await invoke('save-settings', initial);
+  await new Promise((resolve) => { win.webContents.once('did-finish-load', resolve); win.webContents.reload(); });
+  await waitUI('!!document.querySelector(".new-task")');
+  win.webContents.debugger.attach('1.3');
+  const motion = (value) => win.webContents.debugger.sendCommand('Emulation.setEmulatedMedia', {
+    features: [{ name: 'prefers-reduced-motion', value }],
+  });
+  await motion('no-preference');
+  win.show(); win.focus();
   scenario = 'slow-review';
-  await win.webContents.executeJavaScript(`
-    const input = document.querySelector('textarea[aria-label="任务内容"]');
-    Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set.call(input, '检查雪梅视频背景');
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-  `);
-  let sendReady = false;
-  for (let attempt = 0; attempt < 100; attempt++) {
-    sendReady = await win.webContents.executeJavaScript('!document.querySelector(\'button[aria-label="发送任务"]\').disabled');
-    if (sendReady) break;
-    await new Promise((resolve) => setTimeout(resolve, 10));
+  async function submitVideoPrompt() {
+    finishSlowReview = null;
+    await win.webContents.executeJavaScript('document.querySelector(".new-task").click()');
+    await waitUI('!!document.querySelector(\'button[aria-label="发送任务"]\') && !document.querySelector(\'textarea[aria-label="任务内容"]\').disabled');
+    await win.webContents.executeJavaScript(`(() => {
+      const input = document.querySelector('textarea[aria-label="任务内容"]');
+      Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set.call(input, '检查雪梅视频背景');
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    })()`);
+    await waitUI('!document.querySelector(\'button[aria-label="发送任务"]\').disabled');
+    await win.webContents.executeJavaScript('document.querySelector(\'button[aria-label="发送任务"]\').click()');
+    await waitUI('!!document.querySelector(".content-scroll.working")');
+    for (let attempt = 0; attempt < 150 && !finishSlowReview; attempt++) {
+      await new Promise((resolve) => setTimeout(resolve, 20));
+    }
+    assert.ok(finishSlowReview, 'the submitted review reached the local model');
   }
-  assert.ok(sendReady, 'composer accepted a user message');
-  await win.webContents.executeJavaScript('document.querySelector(\'button[aria-label="发送任务"]\').click()');
+  await submitVideoPrompt();
   let videoState;
-  for (let attempt = 0; attempt < 240; attempt++) {
+  for (let attempt = 0; attempt < 500; attempt++) {
     videoState = await win.webContents.executeJavaScript(`(() => {
       const video = document.querySelector('.work-video video');
       return video && { loop: video.loop, muted: video.muted, paused: video.paused, time: video.currentTime, readyState: video.readyState, working: !!document.querySelector('.content-scroll.working') };
@@ -648,14 +664,16 @@ try {
   if (process.env.MEIHUA_CAPTURE === '1') {
     await writeFile('/tmp/meihua-working-preview.png', (await win.webContents.capturePage()).toPNG());
   }
-  let finished = false;
-  for (let attempt = 0; attempt < 120; attempt++) {
-    finished = await win.webContents.executeJavaScript('!document.querySelector(".work-video")');
-    if (finished) break;
-    await new Promise((resolve) => setTimeout(resolve, 50));
-  }
-  assert.ok(finished, 'video stops when the review finishes');
-  console.log('PASS submitted prompt plays muted looping video behind the conversation while reviewing');
+  finishSlowReview();
+  await waitUI('!document.querySelector(".content-scroll.working") && !document.querySelector(".work-video")');
+  await motion('reduce');
+  await submitVideoPrompt();
+  assert.equal(await win.webContents.executeJavaScript('matchMedia("(prefers-reduced-motion: reduce)").matches && !document.querySelector(".work-video")'), true, 'reduced motion keeps the working view static');
+  finishSlowReview();
+  await waitUI('!document.querySelector(".content-scroll.working")');
+  await win.webContents.debugger.sendCommand('Emulation.setEmulatedMedia', { features: [] });
+  win.webContents.debugger.detach();
+  console.log('PASS submitted prompt plays muted looping video and reduced motion keeps a static background');
   // Real MCP stdio elicitation -> main-process queue -> React form -> protocol reply.
   const policy = (await invoke('runtime-settings')).agent;
   await invoke('save-agent-config', { ...policy, sandbox: false });
@@ -680,6 +698,7 @@ try {
   success = true;
 } catch (error) { console.error(error); }
 finally {
+  finishSlowReview?.();
   dialog.showOpenDialog = originalOpen; dialog.showSaveDialog = originalSave;
   powerSaveBlocker.start = originalStart; powerSaveBlocker.stop = originalStop;
   for (const win of BrowserWindow.getAllWindows()) win.destroy();
