@@ -1,0 +1,49 @@
+{
+  "name": "zhuge-agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "electron/main.js",
+  "scripts": {
+    "postinstall": "install-electron",
+    "dev": "vite --host 127.0.0.1",
+    "app": "electron .",
+    "build": "tsc --noEmit && vite build",
+    "package:mac": "npm run build && node scripts/package-mac.mjs",
+    "verify:package": "node scripts/verify-package.mjs",
+    "test": "node --test tests/*.test.js",
+    "test:desktop": "npm run build && electron tests/desktop-smoke.mjs",
+    "test:pipeline": "npm run build && electron tests/pipeline-desktop.mjs",
+    "test:real-pipeline": "npm run build && MEIHUA_REAL_EVAL=1 electron tests/pipeline-desktop.mjs",
+    "test:network": "electron tests/desktop-network.mjs"
+  },
+  "dependencies": {
+    "@earendil-works/pi-agent-core": "0.87.1",
+    "@earendil-works/pi-ai": "0.87.1",
+    "@modelcontextprotocol/client": "^2.1.0",
+    "@vscode/ripgrep": "^1.18.0",
+    "csv-parse": "^7.0.2",
+    "exceljs": "^4.4.0",
+    "fflate": "0.8.3",
+    "lucide-react": "^0.468.0",
+    "officeparser": "8.0.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "typebox": "^1.0.55"
+  },
+  "devDependencies": {
+    "@electron/packager": "^20.3.0",
+    "@modelcontextprotocol/server": "^2.1.0",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "electron": "44.4.5",
+    "typescript": "^5.9.0",
+    "vite": "^7.1.0"
+  },
+  "overrides": {
+    "uuid": "11.1.1"
+  }
+}

@@ -1,0 +1,26 @@
+.task-timeline-slot { width: min(800px, calc(100% - 64px)); margin: 0 auto; }
+.task-timeline-slot:empty { display: none; }
+.task-timeline { border: 1px solid var(--line); border-radius: 12px; margin: 28px 0 0; padding: 14px 16px; font-size: 12px; background: var(--surface); }
+.task-timeline-heading { display: flex; gap: 8px; align-items: center; margin-bottom: 9px; }
+.task-timeline-heading > span { margin-left: auto; color: var(--muted); font-size: 11px; }
+.runtime-record > summary, .runtime-steps summary { cursor: pointer; display: flex; gap: 9px; align-items: center; padding: 9px 0; }
+.runtime-record > summary > small, .runtime-steps summary > small { margin-left: auto; color: var(--muted); }
+.runtime-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
+.runtime-record.running .runtime-dot, .runtime-record.verifying .runtime-dot { background: var(--accent); }
+.runtime-record.failed .runtime-dot { background: #c5776c; }
+.runtime-record.completed .runtime-dot { background: #65a089; }
+.runtime-body { border-top: 1px solid var(--line); padding: 10px 0; }
+.runtime-body p { white-space: pre-wrap; overflow-wrap: anywhere; margin: 6px 0; line-height: 1.65; }
+.runtime-interrupted, .runtime-error { color: #c5776c; }
+.runtime-steps { list-style: none; padding: 0 0 0 12px; margin: 10px 0; border-left: 1px solid var(--line); }
+.runtime-steps details > div { padding: 0 0 9px; color: var(--muted); }
+.runtime-steps code { font-size: 11px; }
+.runtime-verification { margin: 8px 0; }
+.runtime-verification summary { cursor: pointer; line-height: 1.65; }
+.runtime-diagnostics { display: flex; flex-wrap: wrap; gap: 8px 14px; color: var(--muted); margin: 12px 0; font-size: 11px; }
+.runtime-actions { display: flex; flex-wrap: wrap; gap: 7px; }
+.runtime-actions button, .runtime-checkpoints button { border: 1px solid var(--line); color: var(--ink); background: transparent; border-radius: 6px; padding: 6px 8px; display: inline-flex; align-items: center; gap: 5px; font-size: 11px; cursor: pointer; }
+.runtime-actions button:hover, .runtime-checkpoints button:hover { background: var(--hover); }
+.runtime-actions button:disabled, .runtime-checkpoints button:disabled { opacity: .45; cursor: default; }
+.runtime-checkpoints { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 7px; }
+.runtime-checkpoints pre { flex-basis: 100%; max-height: 240px; overflow: auto; padding: 12px; background: var(--code-surface); border-radius: 7px; font-size: 11px; }

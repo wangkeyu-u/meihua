@@ -1,0 +1,9 @@
+import { useState } from 'react';
+import { Pin } from 'lucide-react';
+import type { SessionSummary } from './types';
+export function SessionRow({ item, active, disabled, onOpen, onAction }: { item: SessionSummary; active: boolean; disabled: boolean; onOpen: () => void; onAction: (action: string, title?: string) => Promise<boolean> }) {
+  const [renaming, setRenaming] = useState(false);
+  const [title, setTitle] = useState(item.title);
+  const [saving, setSaving] = useState(false);
+  return <div className={`session-row ${active ? 'active' : ''}`}>{renaming ? <form className="rename-session" onSubmit={async (event) => { event.preventDefault(); setSaving(true); try { if (await onAction('rename', title)) setRenaming(false); } finally { setSaving(false); } }}><input aria-label="任务新名称" autoFocus maxLength={100} value={title} onChange={(event) => setTitle(event.target.value)} onKeyDown={(event) => { if (event.key === 'Escape') setRenaming(false); }} /><button disabled={saving || !title.trim()}>保存</button><button type="button" onClick={() => setRenaming(false)}>取消</button></form> : <><button disabled={disabled} className={`session-item ${active ? 'active' : ''}`} onClick={onOpen}>{item.pinned ? <Pin size={12} /> : <span className="session-dot" />}<span title={item.title}>{item.title}</span></button><select className="session-menu" aria-label={`${item.title}的操作`} title="任务操作" value="" disabled={disabled} onChange={(event) => { const action = event.target.value; if (action === 'rename') { setTitle(item.title); setRenaming(true); } else void onAction(action); }}><option value="">···</option><option value="rename">重命名</option><option value="pin">{item.pinned ? '取消置顶' : '置顶'}</option><option value="archive">{item.archived ? '恢复任务' : '归档'}</option><option value="fork">复制为新任务</option><option value="export">导出 Markdown</option></select></>}</div>;
+}

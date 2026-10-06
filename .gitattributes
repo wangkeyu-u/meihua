@@ -1,0 +1,2 @@
+# Preserve upstream bytes so vendored source continues to match provenance.
+electron/vendor/sandbox-runtime/** -whitespace

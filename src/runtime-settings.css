@@ -1,0 +1,18 @@
+.runtime-settings { width: min(760px, calc(100vw - 36px)); display: flex; flex-direction: column; max-height: calc(100vh - 40px); }
+.runtime-settings-scroll { overflow-y: auto; min-height: 0; padding-right: 8px; }
+.runtime-settings section { border-top: 1px solid var(--line); padding: 16px 0; }
+.runtime-settings h3 { margin: 0 0 10px; font-size: 15px; }
+.runtime-settings fieldset { margin: 0; padding: 0; border: 0; min-width: 0; }
+.runtime-settings label { font-size: 13px; margin: 10px 0; }
+.runtime-settings label:not(.management-check) { display: grid; gap: 6px; }
+.runtime-settings input:not([type="checkbox"]), .runtime-settings select, .runtime-settings textarea { width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); font: inherit; }
+.runtime-settings button { color: var(--ink); }
+.runtime-command, .runtime-cleanup-preview { margin: 12px 0; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--code-surface); }
+.runtime-command-heading, .runtime-button-row { display: flex; gap: 10px; align-items: center; }
+.runtime-command-heading { justify-content: space-between; }
+.runtime-button-row button, .runtime-delete { padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+.runtime-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.runtime-settings .runtime-delete { color: var(--danger); }
+.runtime-data-warning { overflow-wrap: anywhere; font-size: 12px; }
+.runtime-settings p { line-height: 1.6; }
+@media (max-width: 600px) { .runtime-form-grid { grid-template-columns: 1fr; gap: 0; } }

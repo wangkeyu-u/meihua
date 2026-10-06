@@ -1,0 +1,14 @@
+node_modules/
+dist/
+release/
+.local/
+.impeccable/
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+
+# Generated evaluations can contain local paths and task content.
+evaluations/*
+!evaluations/README.md

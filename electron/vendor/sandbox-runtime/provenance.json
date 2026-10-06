@@ -1,0 +1,17 @@
+{
+  "package": "@anthropic-ai/sandbox-runtime",
+  "version": "0.0.78",
+  "license": "Apache-2.0",
+  "source": "https://github.com/anthropics/sandbox-runtime",
+  "files": {
+    "sandbox/generate-seccomp-filter.js": "b34fdce039d181426f2671dfdc76b7ce732daf934239121824352d3d9d41fee1",
+    "sandbox/java-proxy-agent.js": "b56ad1546e7629d949e863f2a386f86b876d6250cca82499c10978db727f8fc5",
+    "sandbox/macos-sandbox-utils.js": "d1564baa290f6946c00d2cbcdfe28b0152a88e61dc9dcc56138d181f51f70fe0",
+    "sandbox/sandbox-utils.js": "988925d15d60eae3c7a4345fbd1bf60c5cdc38017c409afee39bb31eb0251eb1",
+    "sandbox/sandbox-violation-store.js": "4fb12f08408abeb82f12a315eb46e68f3ba455ea5e0d42004a00c74d9bdfc547",
+    "utils/debug.js": "4627c2d75a97335cd99db609bb48c9d097c0d384b3cc41ac7bfef51624083265",
+    "utils/platform.js": "742c524a6c8589ef7de019fb4f7aa069b00215bcecd9d5fa0b77f1868f5177bf",
+    "utils/shell-quote.js": "40898decd1babc4bffdc2a43cc0bbe6e655fe891194379c0ef441df3df621225",
+    "utils/which.js": "150f2f55dbb6e74a22a3638732a26bb017dc2559ba6462c630b62d6b0d509076"
+  }
+}
