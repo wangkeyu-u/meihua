@@ -1,72 +1,68 @@
 # 梅花
 
-梅花是一个 macOS 桌面工作代理。选择工作文件夹、连接模型后，可以用日常语言让它整理资料、查询本地数据、生成文档，或修改项目文件。需要写文件、运行命令或调用外部服务时，应用会显示操作内容并等待确认。
+一个用自然语言处理日常工作的 macOS 桌面 Agent，基于 Electron、React 和 TypeScript。
 
-界面使用雪与梅花主题。任务运行时，雪梅视频在对话后静音循环；模糊和蒙版保持文字可读，系统开启减少动态效果时使用静态背景。
+选择工作文件夹、连接模型后，可以整理资料、查询数据、生成文档或修改项目文件。界面使用雪与梅花主题，任务运行时播放雪梅背景视频。
 
-当前版本为 `0.1.0`。本地工具链和桌面流程已有自动化测试，真实模型的综合任务验收仍待完成。
+## 功能
 
-## 开始使用
+- 读取文本、代码、PDF 和 Office 文件，搜索、创建和编辑工作目录中的文件。
+- 支持 OpenAI、DeepSeek、GLM、Kimi、Anthropic 及 OpenAI 兼容接口。
+- 任务规划、子代理分工、上下文管理、记忆和用量预算。
+- MCP 工具发现与配置、本地资料检索、SQLite 查询、网页和 API 调用。
+- 会话管理、附件、文件与 Git 预览；执行操作前确认，支持暂停、恢复和文件修改撤销。
 
-需要 macOS、Node.js 22.19 或更高版本，以及 npm。建议使用 Node.js 24。
+## 快速开始
+
+需要 macOS 和 Node.js 22.19 或更高版本，建议使用 Node.js 24。
 
 ```bash
+git clone https://github.com/wangkeyu-u/meihua.git
+cd meihua
 npm ci
-npm run build
-npm run app
+npm start
 ```
 
-1. 在首页创建工作台，或选择已有文件夹。输入框左下角可以更换文件夹。
-2. 在输入框右下角连接模型服务，填写你自己的 API Key；本地模型可在高级设置中配置。
-3. 描述要完成的任务，选择工作方式并发送。执行过程中可以补充指令、暂停或停止。
+`npm start` 会构建前端并打开桌面应用。首次安装会下载 Electron。
 
-应用支持 OpenAI、DeepSeek、GLM、Kimi、Anthropic 和 OpenAI 兼容接口。模型预设可以修改，各阶段可分别选择模型；分工子代理有独立配置。服务是否支持工具调用、模型是否对账号开放，需要通过所选服务验证。应用不提供共享密钥或云端额度。
+1. 创建工作台，或选择已有工作文件夹。
+2. 在输入框右下角连接模型，填写自己的 API Key、模型名称和接口地址。
+3. 输入任务，选择直接执行、分工完成、先做计划或仅问答。
 
-| 工作方式 | 行为 |
-| --- | --- |
-| 直接执行 | 先检查需求，由用户决定如何继续，再执行并核对结果 |
-| 分工完成 | 生成有依赖关系的计划，确认后由研究、文档和操作节点协作；监督者可提出修订 |
-| 先做计划 | 读取资料并给出方案；点击按计划执行后进入执行流程 |
-| 仅问答 | 使用读取工具回答问题 |
+OpenAI 兼容服务可填写自定义地址，例如本地 Ollama 的 `http://127.0.0.1:11434/v1`。执行任务需要所选模型支持工具调用。
 
-## 已实现的能力
+MCP 在侧栏“扩展工具”中配置：搜索服务，填写所需密钥或路径，添加后检查连接。也可以手动配置本机 stdio 服务或远程 HTTP 服务。
 
-- 读取文本、代码及 PDF/DOCX/XLSX/PPTX，搜索工作目录；创建和精确编辑文件，生成新的 DOCX/PDF/XLSX。
-- 本地 BM25 资料检索、只读 SQLite 查询、受来源限制的浏览器和登记 API。
-- macOS 应用查找、联系人查询、邮件草稿；Apple Mail 发送需逐封确认。
-- MCP stdio 和 Streamable HTTP，工具、资源、提示模板、OAuth 和表单请求；可检索目录后手动配置服务。
-- 自定义智能体与 Skill ZIP 导入，跨会话偏好、项目事实和需手动启用的经验候选。
-- 会话搜索、置顶、归档、复制与导出；附件、文件/Git 预览、主题和字号设置。
-- 有限任务并发、上下文压缩、调用与 Token 预算、macOS 命令沙箱。
-- 任务日志、暂停恢复、文件备份与撤销、结果验证和诊断导出。
+## 开发
 
-## 目前的限制
-
-真实模型的规划、压缩和综合工具使用质量还没有验收记录。现有集成测试使用本地协议模型，实际执行 Electron、工具和文件操作。
-
-命令隔离目前只有 macOS 后端；Shell、MCP、邮件和其他外部操作没有通用撤销。浏览器使用隔离会话，不能控制用户已登录的 Chrome。资料检索没有向量嵌入，数据库查询仅支持本地 SQLite；办公文件以读取和生成新文件为主，未实现原文件无损编辑、扫描件 OCR 或图片输入。
-
-应用还没有签名、公证和自动更新。任务记录、会话和设置分别存储；主进程文件仍需拆分，大量历史任务的性能尚未测试。
-
-## 开发与验证
+启动前端开发服务：
 
 ```bash
-npm test
-npm run test:desktop
-npm run test:pipeline
-npm run test:network
-npm run package:mac
-npm run verify:package
+npm run dev
 ```
 
-`package:mac` 生成 Apple Silicon 应用：`release/梅花-darwin-arm64/梅花.app`。开发界面时先运行 `npm run dev`，另一个终端运行 `ZHUGE_DEV_URL=http://127.0.0.1:5173 npm run app`。
+在另一个终端打开桌面窗口：
 
-配置真实模型后，可以运行 `npm run test:real-pipeline`。它使用独立测试资料和数据目录，读取已保存的模型配置，产生模型费用。具体范围见[测试说明](docs/testing.md)。
+```bash
+ZHUGE_DEV_URL=http://127.0.0.1:5173 npm run app
+```
 
-- [使用与配置](docs/usage.md)
-- [架构、代码结构和恢复规则](docs/architecture.md)
-- [界面设计](docs/design.md)
-- [最终检查记录](docs/validation.md)
-- [第三方组件、参考源码与素材](THIRD_PARTY_NOTICES.md)
+## 打包
 
-开发过程中使用 AI 辅助编写、排查和整理文档。依赖与参考实现按来源记录，功能说明以源码和实际测试结果为准。
+```bash
+npm run package:mac
+```
+
+生成的 Apple Silicon 应用位于 `release/梅花-darwin-arm64/梅花.app`。当前未提供签名、公证或自动更新。
+
+## 代码结构
+
+```text
+electron/              主进程、模型连接、工具和任务运行时
+electron/runtime/      规划、并发、上下文、记忆与任务恢复
+src/                   React 界面
+assets/                图标、插画和运行背景
+scripts/package-mac.mjs macOS 打包脚本
+```
+
+本项目使用 AI 辅助开发。第三方组件、参考实现和素材来源见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。

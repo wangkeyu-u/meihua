@@ -9,6 +9,4 @@ release/
 .env.*
 !.env.example
 
-# Generated evaluations can contain local paths and task content.
-evaluations/*
-!evaluations/README.md
+evaluations/
