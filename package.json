@@ -6,6 +6,7 @@
   "main": "electron/main.js",
   "scripts": {
     "postinstall": "install-electron",
+    "test:sql": "node --test tests/sql-parameters.test.js",
     "start": "npm run build && electron .",
     "dev": "vite --host 127.0.0.1",
     "app": "electron .",
