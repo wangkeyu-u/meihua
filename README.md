@@ -47,6 +47,14 @@ npm run dev
 ZHUGE_DEV_URL=http://127.0.0.1:5173 npm run app
 ```
 
+SQLite 参数回归可以单独运行（使用 Node.js 24 或更高版本，无需启动 Electron 或连接模型）：
+
+```bash
+npm run test:sql
+```
+
+该检查通过真实 SQL 子进程查询临时数据库，验证有限数值、字符串和显式 `null` 的传递，并在读取文件前拒绝非有限数值及稀疏数组参数。GitHub Actions 也运行这组检查。
+
 ## 打包
 
 ```bash

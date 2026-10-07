@@ -4,7 +4,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export async function queryDatabase(workspace, requested, sql, { signal, timeoutMs = 5000, params = [] } = {}) {
-  if (typeof sql !== 'string' || !sql.trim() || sql.length > 10000 || !Array.isArray(params) || params.length > 100 || params.some((value) => value !== null && !['string', 'number'].includes(typeof value))) throw new Error('SQL 查询或参数格式不正确');
+  if (typeof sql !== 'string' || !sql.trim() || sql.length > 10000 || !Array.isArray(params) || params.length > 100) throw new Error('SQL 查询或参数格式不正确');
+  // JSON IPC turns non-finite numbers and missing array entries into null.
+  // Reject them before reading files so a filter cannot silently change meaning.
+  for (let index = 0; index < params.length; index += 1) {
+    const value = params[index];
+    if (!Object.hasOwn(params, index) || (value !== null && typeof value !== 'string' && !(typeof value === 'number' && Number.isFinite(value)))) throw new Error('SQL 查询或参数格式不正确');
+  }
   if (!/\.(sqlite|sqlite3|db)$/i.test(requested)) throw new Error('请选择工作目录内的 SQLite 数据库');
   signal?.throwIfAborted(); const snapshot = await captureFile(workspace, requested, { maxBytes: 100 * 1024 * 1024 });
   const sidecars = await Promise.all(['-wal', '-shm', '-journal'].map(async (suffix) => ({ path: requested + suffix, state: await captureFile(workspace, requested + suffix, { allowMissing: true, maxBytes: 100 * 1024 * 1024 }) })));
